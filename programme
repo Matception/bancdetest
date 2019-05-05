@@ -9,13 +9,13 @@ import time #importe le module qui permet d'utiliser le temps
 
 com = '' #crée une variable vide pour être ensuite utilisée pour socker le nom du port série
 
-def valeurcom() : #On définit l'algorithme qui va ensuite permettre de lire l'entrée texte 
+def valeurcom() : #On définit la fonction qui va ensuite permettre de lire l'entrée texte 
 
     global com #rend la variable disponible à tout le reste du programme
     com = entreecom.get() #lit l'entrée utilisateur
     choix.after(1, valeurcom) #boucle sur lui même après 1ms
 
-def quitter() : #crée un programme qui ferme la fenetre tkinter 
+def quitter() : #crée une fonction qui ferme la fenetre tkinter 
     choix.destroy()
 
 
@@ -34,28 +34,28 @@ message.pack() #on pack le label
 espace = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold') #on crée un texte blanc pour faire office d'espace
 espace.pack() #on pack l'espace
 
-entreecom = Entry(choix, bg = "#fff")
-entreecom.pack()
-choix.bind("<Return>", valeurcom)
+entreecom = Entry(choix, bg = "#fff")#on crée une entrée texte pour que l'utilisateur entre le port COM
+entreecom.pack() #on pack l'entrée 
+choix.bind("<Return>", valeurcom) #on définit la touche entrée pour qu'elle permette de lancer la fonction qui lit l'entrée
 
 
-espace1 = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
-espace1.pack()
+espace1 = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold') #on crée un texte blanc pour faire office d'espace
+espace1.pack()#on pack l'espace
 
 
-export = Button (choix, command=quitter)
-img = PhotoImage(file="entrer.png")
-export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0)
-export.pack()
+export = Button (choix, command=quitter) #on crée un bouton qui permet de fermer la fenêtre en appelant une fonction
+img = PhotoImage(file="entrer.png") #on définit img comme étant une image
+export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0) #on définit l'image comme bouton, on supprime les bordures du programme et on rend son fond blanc
+export.pack() #on pack le boutton
 
-choix.after(1, valeurcom)
-choix.mainloop()
-
-
+choix.after(1, valeurcom) #on appelle la fonction qui lit l'entrée pour qu'elle boucle sur elle même afin de continuellement lire l'entrée
+choix.mainloop() #on définit la fenêtre comme boucle principale
 
 
-with Serial(port = com, baudrate = 115200, timeout = 1 , writeTimeout =1 ) as port_serie:
-    if port_serie.isOpen():
+
+
+with Serial(port = com, baudrate = 115200, timeout = 1 ) as serie:
+    if serie.isOpen():
            # On crée une fenêtre, racine de notre interface
 
         time.sleep(3)
@@ -185,5 +185,5 @@ with Serial(port = com, baudrate = 115200, timeout = 1 , writeTimeout =1 ) as po
 
                       
     else:
-                        pass
+           print ("enorme érreur avec le port série")
            
