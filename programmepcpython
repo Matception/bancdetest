@@ -1,0 +1,189 @@
+from serial import * #importe tout le module série 
+from tkinter import * #importe tout tkinter
+import re #importe re pour renommer
+import operator #importe le module pour les operations
+import csv #importe le module d'export en CSV
+import keyboard  # importe le module qui permet de lire les entrées clavier
+import string #importe le module qui permet de mieux gerer les strings
+import time #importe le module qui permet d'utiliser le temps
+
+com = '' #crée une variable vide pour être ensuite utilisée pour socker le nom du port série
+
+def valeurcom() : #On définit l'algorithme qui va ensuite permettre de lire l'entrée texte 
+
+    global com #rend la variable disponible à tout le reste du programme
+    com = entreecom.get() #lit l'entrée utilisateur
+    choix.after(1, valeurcom) #boucle sur lui même après 1ms
+
+def quitter() : #crée un programme qui ferme la fenetre tkinter 
+    choix.destroy()
+
+
+choix = Tk() #on crée une fenêtre tkinter 
+choix.geometry('1024x512+0+0') #on definit ses dimmensions 
+choix.title('Banc de mesure') #on définit son nom
+choix.config(bg = "#fff") #on définit la couleur de fond de la fenêtre
+
+phototitre = PhotoImage(file="titre.png") #on définit une image
+titre = Label(choix, image = phototitre, bg = "#fff") #on affiche cette image et on rend son fond blanc
+titre.pack() #on pack l'image pour l'afficher
+
+message = Label(choix, text="Inserez le port COM : ", font='Arial 20 italic bold', bg = "#fff", justify=LEFT) #on crée un label qui demande de saisir le port COM
+message.pack() #on pack le label
+
+espace = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold') #on crée un texte blanc pour faire office d'espace
+espace.pack() #on pack l'espace
+
+entreecom = Entry(choix, bg = "#fff")
+entreecom.pack()
+choix.bind("<Return>", valeurcom)
+
+
+espace1 = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
+espace1.pack()
+
+
+export = Button (choix, command=quitter)
+img = PhotoImage(file="entrer.png")
+export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0)
+export.pack()
+
+choix.after(1, valeurcom)
+choix.mainloop()
+
+
+
+
+with Serial(port = com, baudrate = 115200, timeout = 1 , writeTimeout =1 ) as port_serie:
+    if port_serie.isOpen():
+           # On crée une fenêtre, racine de notre interface
+
+        time.sleep(3)
+
+        
+        root = Tk()
+        root.geometry('1024x720+0+0')
+        root.title('Banc de mesure')
+        root.config(bg = "#fff")
+
+        phototitre = PhotoImage(file="titre.png")
+        titre = Label(root, image = phototitre, bg = "#fff")
+        titre.pack()
+
+        valeurs = str(port_serie.readline().strip())
+        distanceraw, vide, coupleetforce = valeurs.partition("t")
+        forceradraw, t, coupleraw = coupleetforce.partition("t")
+        forcerad1 = forceradraw.replace("'", '')
+        forcerad0 = forcerad1.replace("b",'')
+        forceradstr = forcerad0.replace('/', '')
+        couple0 = coupleraw.replace('b', '')
+        couplestr = couple0.replace("'", '')
+        distance1 = distanceraw.replace('b', '')
+        distance = distance1.replace("'", "")
+
+       
+        def recupere():
+                    valeurs = str(port_serie.readline().strip())
+                    distanceraw, vide, coupleetforce = valeurs.partition("t")
+                    forceradraw, t, coupleraw = coupleetforce.partition("t")
+                    forcerad1 = forceradraw.replace("'", '')
+                    forcerad0 = forcerad1.replace("b",'')
+                    forcerad = forcerad0.replace('/', '')
+                    couple0 = coupleraw.replace('b', '')
+                    couple = couple0.replace("'", '')
+                    distance1 = distanceraw.replace('b', '')
+                    distance = distance1.replace("'", "")
+                    forcerad = float(forcerad)
+                    couple = float(couple)
+                    couple = couple / 100000
+                    forcerad = forcerad / 47777
+                    forcerad = round(forcerad, 2)
+                    couple = round(couple, 2)
+                    forceradstr = str(forcerad)
+                    couplestr = str(couple)
+                    forceradstr = forceradstr.replace('-', '')
+                    couplestr = couplestr.replace('-', '')
+                    
+                    
+                    if keyboard.is_pressed('enter'):
+                        with open('donnees force radiale.csv', 'a') as outfile:
+                            outfileWrite = csv.writer(outfile)
+                            outfileWrite.writerow([forcerad, couple, distance])
+                        outfile.close()
+                        
+                    affichageforceradiale.config(text="            Force radiale =      " + forceradstr + "N")
+                    affichagedistance.config(text="            Position =              " + distance + "mm")
+                    affichagecouple.config(text="            Couple =                " + couplestr + "Nm")
+                    root.after(10, recupere)
+
+        def exportdonnees():
+            
+                    valeurs = str(port_serie.readline().strip())
+                    distanceraw, vide, coupleetforce = valeurs.partition("t")
+                    forceradraw, t, coupleraw = coupleetforce.partition("t")
+                    forcerad1 = forceradraw.replace("'", '')
+                    forcerad0 = forcerad1.replace("b",'')
+                    forcerad = forcerad0.replace('/', '')
+                    couple0 = coupleraw.replace('b', '')
+                    couple = couple0.replace("'", '')
+                    distance1 = distanceraw.replace('b', '')
+                    distance = distance1.replace("'", "")
+                    forcerad = float(forcerad)
+                    couple = float(couple)
+                    couple = couple / 100000
+                    forcerad = forcerad / 47777
+                    forcerad = round(forcerad, 4)
+                    couple = round(couple, 4)
+                    forceradstr = str(forcerad)
+                    couplestr = str(couple)
+            
+                    with open('donnees force radiale.csv', 'a') as outfile:
+                            outfileWrite = csv.writer(outfile)
+                            outfileWrite.writerow([forcerad, couple, distance])
+
+
+        
+        espace = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
+        espace.pack()
+        
+        affichagedistance = Label(root, text=distance, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
+        affichagedistance.pack()
+
+        espace1 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold')
+        espace1.pack()
+                     
+        
+        affichageforceradiale = Label(root, text=forceradstr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
+        affichageforceradiale.pack()
+
+        espace2 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold')
+        espace2.pack()
+        
+        affichagecouple = Label(root, text=couplestr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
+        affichagecouple.pack()
+
+        espace3 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
+        espace3.pack()
+        
+        export = Button (root, command=exportdonnees, text = "sauvegarde des données", font='Helvetica 24 bold')
+        img = PhotoImage(file="saudonnees.png")
+        export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0)
+        export.pack()
+
+        espace4 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold')
+        espace4.pack()
+
+        crédits= Label(root, text="Banc de mesure réalisé par BURLET Jessy, GREGOIRE Antonin, MARTIN Mathis et TOUBON Logan.", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER)
+        crédits.pack()
+        crédits2= Label(root, text="Programme réalisé par MARTIN Mathis et TOUBON Logan. Mai 2019", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER)
+        crédits2.pack()
+        
+        root.after(1, recupere)
+        root.mainloop()
+
+                
+
+                      
+    else:
+                        pass
+           
