@@ -34,7 +34,7 @@ message.pack() #on pack le label
 espace = Label(choix, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold') #on crée un texte blanc pour faire office d'espace
 espace.pack() #on pack l'espace
 
-entreecom = Entry(choix, bg = "#fff")#on crée une entrée texte pour que l'utilisateur entre le port COM
+entreecom = Entry(choix, bg = "#fff") #on crée une entrée texte pour que l'utilisateur entre le port COM
 entreecom.pack() #on pack l'entrée 
 choix.bind("<Return>", valeurcom) #on définit la touche entrée pour qu'elle permette de lancer la fonction qui lit l'entrée
 
@@ -54,136 +54,140 @@ choix.mainloop() #on définit la fenêtre comme boucle principale
 
 
 
-with Serial(port = com, baudrate = 115200, timeout = 1 ) as serie:
-    if serie.isOpen():
-           # On crée une fenêtre, racine de notre interface
+with Serial(port = com, baudrate = 115200, timeout = 1 ) as portserie: #on definit les propriétés du port serie et on le nomme
+    if portserie.isOpen(): #si le port serie est ouvert alors : 
+    
 
-        time.sleep(3)
+        time.sleep(3) #On attend 3s car l'arduino envoie des données vides pendant 2s qui font planter le programme
 
         
-        root = Tk()
-        root.geometry('1024x720+0+0')
-        root.title('Banc de mesure')
-        root.config(bg = "#fff")
+        root = Tk() #on crée la fenêtre principale
+        root.geometry('1024x720+0+0') #on définit ses dimmensions
+        root.title('Banc de mesure') #on définit son nom
+        root.config(bg = "#fff")   #on definit la couleur de fond de la fenêtre 
 
-        phototitre = PhotoImage(file="titre.png")
-        titre = Label(root, image = phototitre, bg = "#fff")
-        titre.pack()
+        phototitre = PhotoImage(file="titre.png") #on definit phototitre comme une image
+        titre = Label(root, image = phototitre, bg = "#fff") #on l'applique a un label
+        titre.pack() #on pack l'image
 
-        valeurs = str(port_serie.readline().strip())
-        distanceraw, vide, coupleetforce = valeurs.partition("t")
-        forceradraw, t, coupleraw = coupleetforce.partition("t")
-        forcerad1 = forceradraw.replace("'", '')
-        forcerad0 = forcerad1.replace("b",'')
-        forceradstr = forcerad0.replace('/', '')
-        couple0 = coupleraw.replace('b', '')
-        couplestr = couple0.replace("'", '')
-        distance1 = distanceraw.replace('b', '')
-        distance = distance1.replace("'", "")
+        valeurs = str(portserie.readline().strip()) #on definit "valeurs" comme etant la ligne de données venant du port série
+        distanceraw, vide, coupleetforce = valeurs.partition("t") #on sépare la ligne en deux variables "distanceraw" et "coupleetforce" avec t comme separateur
+        forceradraw, t, coupleraw = coupleetforce.partition("t") #on sépare la deuxième valeur en deux variables "forceraw" et "coupleraw" avec t comme separateur
+        forcerad1 = forceradraw.replace("'", '') #on traite forceraw pour enlever les '
+        forcerad0 = forcerad1.replace("b",'') #on traite forcerad pour enlever les b
+        forceradstr = forcerad0.replace('/', '') #on traite forcerad pour enlever les /
+        couple0 = coupleraw.replace('b', '') #on traite coupleraw pour enlever les  b
+        couplestr = couple0.replace("'", '') #on traite couple0 pour enlever les  '
+        distance1 = distanceraw.replace('b', '') #on traite distanceraw pour enlever les b
+        distance = distance1.replace("'", "") #on traite distance1 pour enlever les '
 
        
         def recupere():
-                    valeurs = str(port_serie.readline().strip())
-                    distanceraw, vide, coupleetforce = valeurs.partition("t")
-                    forceradraw, t, coupleraw = coupleetforce.partition("t")
-                    forcerad1 = forceradraw.replace("'", '')
-                    forcerad0 = forcerad1.replace("b",'')
-                    forcerad = forcerad0.replace('/', '')
-                    couple0 = coupleraw.replace('b', '')
-                    couple = couple0.replace("'", '')
-                    distance1 = distanceraw.replace('b', '')
-                    distance = distance1.replace("'", "")
-                    forcerad = float(forcerad)
-                    couple = float(couple)
-                    couple = couple / 100000
-                    forcerad = forcerad / 47777
-                    forcerad = round(forcerad, 2)
-                    couple = round(couple, 2)
-                    forceradstr = str(forcerad)
-                    couplestr = str(couple)
-                    forceradstr = forceradstr.replace('-', '')
-                    couplestr = couplestr.replace('-', '')
+                    valeurs = str(portserie.readline().strip()) #on definit "valeurs" comme etant la ligne de données venant du port série
+                    distanceraw, vide, coupleetforce = valeurs.partition("t") #on sépare la ligne en deux variables "distanceraw" et "coupleetforce" avec t comme separateur
+                    forceradraw, t, coupleraw = coupleetforce.partition("t") #on sépare la deuxième valeur en deux variables "forceraw" et "coupleraw" avec t comme separateur
+                    forcerad1 = forceradraw.replace("'", '') #on traite forceraw pour enlever les '
+                    forcerad0 = forcerad1.replace("b",'') #on traite forcerad pour enlever les b
+                    forceradstr = forcerad0.replace('/', '') #on traite forcerad pour enlever les /
+                    couple0 = coupleraw.replace('b', '') #on traite coupleraw pour enlever les  b
+                    couplestr = couple0.replace("'", '') #on traite couple0 pour enlever les  '
+                    distance1 = distanceraw.replace('b', '') #on traite distanceraw pour enlever les b
+                    distance = distance1.replace("'", "") #on traite distance1 pour enlever les '
+                    forcerad = float(forcerad) #on crée un float avec forcerad
+                    couple = float(couple) #on cree un float avec couple
+                    couple = couple / 100000 #on applique un coefficient sur le couple pour le transformet en Nm
+                    forcerad = forcerad / 47777 #on applique un coefficient sur la forcerad pour la transformer en N
+                    forcerad = round(forcerad, 2) #on arrondi forcerad au centième
+                    couple = round(couple, 2) #on arrondi couple au centième
+                    forceradstr = str(forcerad) #on crée un string avec la forcerad arrondie
+                    couplestr = str(couple) #on crée un string avec le couple arrondi
+                    forceradstr = forceradstr.replace('-', '') #on crée une valeur absolue en enlevant le -
+                    couplestr = couplestr.replace('-', '') #on crée une valeur absolue en enlevant le -
                     
                     
-                    if keyboard.is_pressed('enter'):
-                        with open('donnees force radiale.csv', 'a') as outfile:
-                            outfileWrite = csv.writer(outfile)
-                            outfileWrite.writerow([forcerad, couple, distance])
-                        outfile.close()
+                    if keyboard.is_pressed('enter'): # si la touche entrée est appuyée, on procède au suivant
+                        with open('donnees.csv', 'a') as fichier: #on crée un fichier CSV, on l'ouvre et on definit le fait qu'il faille ecrire sur une nouvelle ligne à chaque arrivée de donnés
+                            fichierWrite = csv.writer(fichier) #on définit le fait que on va ecrire dans le fichier
+                            fichierWrite.writerow([forcerad, couple, distance]) #on definit le fait qu'il faut ecrire les 3 variables sur la même ligne dans des colonnes différentes
+                        outfile.close() #on ferme le fichier CSV
                         
-                    affichageforceradiale.config(text="            Force radiale =      " + forceradstr + "N")
-                    affichagedistance.config(text="            Position =              " + distance + "mm")
-                    affichagecouple.config(text="            Couple =                " + couplestr + "Nm")
+                    affichageforceradiale.config(text="            Force radiale =      " + forceradstr + "N") #On configure le label pour afficher la nouvelle valeur
+                    affichagedistance.config(text="            Position =              " + distance + "mm") #On configure le label pour afficher la nouvelle valeur
+                    affichagecouple.config(text="            Couple =                " + couplestr + "Nm") #On configure le label pour afficher la nouvelle valeur
                     root.after(10, recupere)
 
-        def exportdonnees():
+        def exportdonnees(): #on crée une fonction pour exporter les donnes
             
-                    valeurs = str(port_serie.readline().strip())
-                    distanceraw, vide, coupleetforce = valeurs.partition("t")
-                    forceradraw, t, coupleraw = coupleetforce.partition("t")
-                    forcerad1 = forceradraw.replace("'", '')
-                    forcerad0 = forcerad1.replace("b",'')
-                    forcerad = forcerad0.replace('/', '')
-                    couple0 = coupleraw.replace('b', '')
-                    couple = couple0.replace("'", '')
-                    distance1 = distanceraw.replace('b', '')
-                    distance = distance1.replace("'", "")
-                    forcerad = float(forcerad)
-                    couple = float(couple)
-                    couple = couple / 100000
-                    forcerad = forcerad / 47777
-                    forcerad = round(forcerad, 4)
-                    couple = round(couple, 4)
-                    forceradstr = str(forcerad)
-                    couplestr = str(couple)
-            
-                    with open('donnees force radiale.csv', 'a') as outfile:
-                            outfileWrite = csv.writer(outfile)
-                            outfileWrite.writerow([forcerad, couple, distance])
-
+                    valeurs = str(portserie.readline().strip()) #on definit "valeurs" comme etant la ligne de données venant du port série
+                    distanceraw, vide, coupleetforce = valeurs.partition("t") #on sépare la ligne en deux variables "distanceraw" et "coupleetforce" avec t comme separateur
+                    forceradraw, t, coupleraw = coupleetforce.partition("t") #on sépare la deuxième valeur en deux variables "forceraw" et "coupleraw" avec t comme separateur
+                    forcerad1 = forceradraw.replace("'", '') #on traite forceraw pour enlever les '
+                    forcerad0 = forcerad1.replace("b",'') #on traite forcerad pour enlever les b
+                    forceradstr = forcerad0.replace('/', '') #on traite forcerad pour enlever les /
+                    couple0 = coupleraw.replace('b', '') #on traite coupleraw pour enlever les  b
+                    couplestr = couple0.replace("'", '') #on traite couple0 pour enlever les  '
+                    distance1 = distanceraw.replace('b', '') #on traite distanceraw pour enlever les b
+                    distance = distance1.replace("'", "") #on traite distance1 pour enlever les '
+                    forcerad = float(forcerad) #on crée un float avec forcerad
+                    couple = float(couple) #on cree un float avec couple
+                    couple = couple / 100000 #on applique un coefficient sur le couple pour le transformet en Nm
+                    forcerad = forcerad / 47777 #on applique un coefficient sur la forcerad pour la transformer en N
+                    forcerad = round(forcerad, 2) #on arrondi forcerad au centième
+                    couple = round(couple, 2) #on arrondi couple au centième
+                    forceradstr = str(forcerad) #on crée un string avec la forcerad arrondie
+                    couplestr = str(couple) #on crée un string avec le couple arrondi
+                    forceradstr = forceradstr.replace('-', '') #on crée une valeur absolue en enlevant le -
+                    couplestr = couplestr.replace('-', '') #on crée une valeur absolue en enlevant le -
+                    
+                    
+                    with open('donnees.csv', 'a') as fichier: #on crée un fichier CSV, on l'ouvre et on definit le fait qu'il faille ecrire sur une nouvelle ligne à chaque arrivée de donnés
+                        fichierWrite = csv.writer(fichier) #on définit le fait que on va ecrire dans le fichier
+                        fichierWrite.writerow([forcerad, couple, distance]) #on definit le fait qu'il faut ecrire les 3 variables sur la même ligne dans des colonnes différentes
+                    outfile.close() #on ferme le fichier CSV
 
         
-        espace = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
-        espace.pack()
+        espace = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold') #on crée un label pour faire un espace
+        espace.pack() #on pack l'espace
         
-        affichagedistance = Label(root, text=distance, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
-        affichagedistance.pack()
+        affichagedistance = Label(root, text=distance, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W) #on crée un label pour afficher la distance
+        affichagedistance.pack() #on pack le label
 
-        espace1 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold')
-        espace1.pack()
+        espace1 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold') #on crée un label pour faire un espace
+        espace1.pack() #on pack le label
                      
         
-        affichageforceradiale = Label(root, text=forceradstr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
-        affichageforceradiale.pack()
+        affichageforceradiale = Label(root, text=forceradstr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W) #on crée un label pour afficher la force radiale
+        affichageforceradiale.pack() #on pack le label
 
-        espace2 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold')
-        espace2.pack()
+        espace2 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 15 bold') #on crée un label pour faire un espace
+        espace2.pack()#on pack le label
         
-        affichagecouple = Label(root, text=couplestr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W)
-        affichagecouple.pack()
+        affichagecouple = Label(root, text=couplestr, font='Helvetica 20 bold', bg = "#fff", width = 30, height = 1, anchor = W) #on crée un label pour afficher le couple
+        affichagecouple.pack()#on pack le label
 
-        espace3 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold')
-        espace3.pack()
+        espace3 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 30 bold') #on crée un label pour faire un espace
+        espace3.pack()#on pack le label
         
-        export = Button (root, command=exportdonnees, text = "sauvegarde des données", font='Helvetica 24 bold')
-        img = PhotoImage(file="saudonnees.png")
-        export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0)
-        export.pack()
+        export = Button (root, command=exportdonnees) #on crée un boutton pour appeler la fonction de sauvegarde
+        img = PhotoImage(file="saudonnees.png") #on definit une image
+        export.config(image=img, bg = "#fff", highlightthickness = 0, bd = 0) #on applique cette image au boutton et on supprime le fond/la bordure
+        export.pack()#on pack le boutton
 
-        espace4 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold')
-        espace4.pack()
+        espace4 = Label(root, text= "espace", bg = "#fff", fg = "#fff", font='Helvetica 10 bold') #on crée un label pour faire un espace
+        espace4.pack()#on pack le label
 
-        crédits= Label(root, text="Banc de mesure réalisé par BURLET Jessy, GREGOIRE Antonin, MARTIN Mathis et TOUBON Logan.", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER)
-        crédits.pack()
-        crédits2= Label(root, text="Programme réalisé par MARTIN Mathis et TOUBON Logan. Mai 2019", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER)
-        crédits2.pack()
+        crédits= Label(root, text="Banc de mesure réalisé par BURLET Jessy, GREGOIRE Antonin, MARTIN Mathis et TOUBON Logan.", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER) #on crée un label de crédits
+        crédits.pack()#on pack le label
         
-        root.after(1, recupere)
-        root.mainloop()
+        crédits2= Label(root, text="Programme réalisé par MARTIN Mathis et TOUBON Logan. Mai 2019", font='Helvetica 10 bold', bg = "#fff", width = 300, height = 1, anchor = CENTER) #on crée un label de crédits
+        crédits2.pack()#on pack le label
+        
+        root.after(1, recupere) #on appele une fonction pour boucler la recuperation des donnees 
+        root.mainloop() #on definit la fenêtre comme boucle principale 
 
                 
 
                       
-    else:
-           print ("enorme érreur avec le port série")
+    else: #si le programme n'arrive pas a se connecter au port série : 
+           print ("enorme érreur avec le port série :/ ") #on affiche un message d'erreur
            
